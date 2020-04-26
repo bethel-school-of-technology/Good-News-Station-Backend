@@ -3,7 +3,7 @@ import './App.css';
 
 const App = () => (
   <Fragment>
-    <h1>Good News Station!</h1>
+    <h1>Hello and Welcome to the Good News Station!</h1>
   </Fragment>
 )
 
