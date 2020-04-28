@@ -5,7 +5,7 @@ import Navbar from './components/Navbar/Navbar';
 
 const App = () => (
   <Fragment>
-    <h1>Good News Station!</h1>
+    <h1>Welcome to the Good News Station!</h1>
   </Fragment>
 )
 
