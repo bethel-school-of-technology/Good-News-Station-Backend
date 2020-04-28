@@ -3,18 +3,15 @@ import React from 'react';
 const navbar = props => (
     <header>
         <nav>
-            <div></div>
-            <div>HOME PAGE</div>
+            <div>Home Page</div>
             <div>
                 <ul>
-                    <li><a href="/">HOME</a></li>
-                    <li><a href="/">NEWSFEED</a></li>
-                    <li><a href="/">MY PROFILE</a></li>
-                    <li></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/">My Profile</a></li>
+                    <li><a href="/">Newsfeed</a></li>
                 </ul>
             </div>
         </nav>
     </header>
 );
-
 export default navbar;
