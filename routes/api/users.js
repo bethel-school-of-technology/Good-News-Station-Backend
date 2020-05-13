@@ -9,9 +9,9 @@ const normalize = require('normalize-url');
 
 const User = require('../../models/User');
 
-// ROUTE:     POST api/users
-// DESC:      Register user
-// ACCESS:    Public
+// @route    POST api/users
+// @desc     Register user
+// @access   Public
 router.post(
   '/',
   [

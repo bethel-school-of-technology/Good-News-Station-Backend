@@ -1,12 +1,8 @@
 const express = require('express');
-const axios = require('axios');
-const config = require('config');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
-// bring in normalize to give us a proper url, regardless of what user entered
-const normalize = require('normalize-url');
 
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
@@ -134,5 +130,31 @@ router.delete('/', auth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
+// //endpoint for following another user
+// router.post('/:username/follow', auth.required, function (req, res, next) {
+//     var profileId = req.profile._id;
+
+//     User.findById(req.payload.id).then(function (user) {
+//         if (!user) { return res.sendStatus(401); }
+
+//         return user.follow(profileId).then(function () {
+//             return res.json({ profile: req.profile.toProfileJSONFor(user) });
+//         });
+//     }).catch(next);
+// });
+
+// //endpoint for unfollowing another user
+// router.delete('/:username/follow', auth.required, function (req, res, next) {
+//     var profileId = req.profile._id;
+
+//     User.findById(req.payload.id).then(function (user) {
+//         if (!user) { return res.sendStatus(401); }
+
+//         return user.unfollow(profileId).then(function () {
+//             return res.json({ profile: req.profile.toProfileJSONFor(user) });
+//         });
+//     }).catch(next);
+// });
 
 module.exports = router;
