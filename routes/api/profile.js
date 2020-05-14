@@ -131,30 +131,33 @@ router.delete('/', auth, async (req, res) => {
     }
 });
 
-// //endpoint for following another user
-// router.post('/:username/follow', auth.required, function (req, res, next) {
-//     var profileId = req.profile._id;
+// User.findOne({ username: req.body.username }, function(err, user) {
 
-//     User.findById(req.payload.id).then(function (user) {
-//         if (!user) { return res.sendStatus(401); }
+//     user.followers.push(req.user._id);
+//     var followedUser = user._id;
+//     user.save(function(err){
+//         if(err){
+//             //Handle error
+//             //send error response
+//         }
+//         else
+//         {
+//             // Secondly, find the user account for the logged in user
+//             User.findOne({ username: req.user.username }, function(err, user) {
 
-//         return user.follow(profileId).then(function () {
-//             return res.json({ profile: req.profile.toProfileJSONFor(user) });
-//         });
-//     }).catch(next);
-// });
-
-// //endpoint for unfollowing another user
-// router.delete('/:username/follow', auth.required, function (req, res, next) {
-//     var profileId = req.profile._id;
-
-//     User.findById(req.payload.id).then(function (user) {
-//         if (!user) { return res.sendStatus(401); }
-
-//         return user.unfollow(profileId).then(function () {
-//             return res.json({ profile: req.profile.toProfileJSONFor(user) });
-//         });
-//     }).catch(next);
+//                 user.following.push(followedUser);
+//                 user.save(function(err){
+//                     if(err){
+//                         //Handle error
+//                         //send error response
+//                     }
+//                     else{
+//                         //send success response
+//                     }
+//                 });
+//             });
+//         }
+//     });
 // });
 
 module.exports = router;
