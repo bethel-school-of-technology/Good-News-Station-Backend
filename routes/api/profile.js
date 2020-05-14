@@ -1,12 +1,8 @@
 const express = require('express');
-const axios = require('axios');
-const config = require('config');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
-// bring in normalize to give us a proper url, regardless of what user entered
-const normalize = require('normalize-url');
 
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
@@ -134,5 +130,34 @@ router.delete('/', auth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
+// User.findOne({ username: req.body.username }, function(err, user) {
+
+//     user.followers.push(req.user._id);
+//     var followedUser = user._id;
+//     user.save(function(err){
+//         if(err){
+//             //Handle error
+//             //send error response
+//         }
+//         else
+//         {
+//             // Secondly, find the user account for the logged in user
+//             User.findOne({ username: req.user.username }, function(err, user) {
+
+//                 user.following.push(followedUser);
+//                 user.save(function(err){
+//                     if(err){
+//                         //Handle error
+//                         //send error response
+//                     }
+//                     else{
+//                         //send success response
+//                     }
+//                 });
+//             });
+//         }
+//     });
+// });
 
 module.exports = router;
