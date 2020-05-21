@@ -93,18 +93,32 @@ router.post(
 router.put('/follow/:id', [auth, checkObjectId('id')], async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    
+    const me = await User.findById(req.user.id);
 
-    // Check if the user has already been followd
-    if (user.following.filter((follow) => follow.user.toString() === req.user.id).length > 10) {
-      return res.status(400).json({ msg: 'User already followed' });
+    console.log("user: ", user.id);
+    console.log("me: ", me.id);
+
+
+    if (me.id === user.id) {
+      return res.status(400).json({ alreadyfollow: "You cannot follow yourself" })
     }
 
-    user.following.push({ user: req.user.id });
+    if (user.followers.some((follow) => follow.user.toString() === me.id)) {
+      return res.status(400).json({ msg: 'User already followed' });
+    } else {
+      user.followers.unshift({ user: me.id });
+      await user.save();
 
-    await user.save();
+      if (me.following.some((follow) => follow.user.toString() === user.id)) {
+        console.log("You already following this user");
+      } else {
+        me.following.unshift({ user: user.id });
+        await me.save();
+      }
 
-    return res.json(user.following);
+      res.status(200).json({ msg: 'EVERYTHING WORKS22' });
+      return res.json(user.following);
+    }
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -117,20 +131,34 @@ router.put('/follow/:id', [auth, checkObjectId('id')], async (req, res) => {
 router.put('/unfollow/:id', [auth, checkObjectId('id')], async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
+    const me = await User.findById(req.user.id);
 
-    // Check if the user has not yet been followed
-    if (!user.following.some((follow) => follow.user.toString() === req.user.id)) {
-      return res.status(400).json({ msg: 'user has not yet been followed' });
+    console.log("user: ", user.id);
+    console.log("me: ", me.id);
+
+    if (user.followers.some((follow) => follow.user.toString() === me.id)) {
+      
+      user.followers.shift({ user: me.id });
+      await user.save();
+
+      if (me.following.some((follow) => follow.user.toString() === user.id)) {
+        me.following.shift({ user: user.id });
+        await me.save();
+      } else {
+        
+        console.log("log seccesfully unfollowed usre");
+
+      }
+
+      res.status(200).json({ msg: 'sucessfuly ufolowed user' });
+      return res.json(user.following);
+
+    } else {
+      return res.status(400).json({ msg: 'not sucessfiul' });
+      
+
+    
     }
-
-    // remove the follow
-    user.following = user.following.filter(
-      ({ user }) => user.toString() !== req.user.id
-    );
-
-    await user.save();
-
-    return res.json(user.following);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
