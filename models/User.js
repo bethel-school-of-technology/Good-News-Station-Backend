@@ -22,7 +22,6 @@ const UserSchema = new Schema({
     {
       user: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
       }
     }
   ],
@@ -30,7 +29,6 @@ const UserSchema = new Schema({
     {
       user: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
       }
     }
   ],

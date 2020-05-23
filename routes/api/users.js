@@ -7,6 +7,7 @@ const config = require('config');
 const { check, validationResult } = require('express-validator');
 const auth = require('../../middleware/auth');
 const normalize = require('normalize-url');
+const mongoose = require('mongoose');
 
 const User = require('../../models/User');
 const checkObjectId = require('../../middleware/checkObjectId');
@@ -95,10 +96,6 @@ router.put('/follow/:id', [auth, checkObjectId('id')], async (req, res) => {
     const user = await User.findById(req.params.id);
     const me = await User.findById(req.user.id);
 
-    console.log("user: ", user.id);
-    console.log("me: ", me.id);
-
-
     if (me.id === user.id) {
       return res.status(400).json({ alreadyfollow: "You cannot follow yourself" })
     }
@@ -162,6 +159,29 @@ router.put('/unfollow/:id', [auth, checkObjectId('id')], async (req, res) => {
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
+  }
+});
+
+// @route    GET api/user/:user_id
+// @desc     Get user by user ID
+// @access   Public
+router.get('/:user_id', async ({ params: { user_id } }, res) => {
+  // check if the id is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(user_id))
+      return res.status(400).json({ msg: 'Invalid user ID' });
+
+  try {
+      const user = await User.findOne({
+          _id: user_id
+      }).populate('user', ['name', 'email', 'avatar', 'following', 'followers']);
+console.log('user_id', user_id);
+console.log('user', user);
+      if (!user) return res.status(400).json({ msg: 'User not found' });
+
+      return res.json(user);
+  } catch (err) {
+      console.error(err.message);
+      return res.status(400).json({ msg: 'User not found' });
   }
 });
 

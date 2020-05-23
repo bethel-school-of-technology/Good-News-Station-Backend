@@ -22,7 +22,7 @@ router.get('/me', auth, async (req, res) => {
         }
 
         // only populate from user document if profile exists
-        res.json(profile.populate('user', ['name', 'avatar']));
+        res.json(profile.populate('user', ['name', 'avatar', 'email', 'following', 'followers']));
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -81,7 +81,7 @@ router.post(
 // @access   Public
 router.get('/', async (req, res) => {
     try {
-        const profiles = await Profile.find().populate('user', ['name', 'avatar']);
+        const profiles = await Profile.find().populate('user', ['name', 'avatar', 'email', 'following', 'followers']);
         res.json(profiles);
     } catch (err) {
         console.error(err.message);
@@ -101,7 +101,7 @@ router.get('/user/:user_id', async ({ params: { user_id } }, res) => {
     try {
         const profile = await Profile.findOne({
             user: user_id
-        }).populate('user', ['name', 'avatar']);
+        }).populate('user', ['name', 'avatar', 'email', 'following', 'followers']);
 
         if (!profile) return res.status(400).json({ msg: 'Profile not found' });
 
@@ -130,34 +130,5 @@ router.delete('/', auth, async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
-// User.findOne({ username: req.body.username }, function(err, user) {
-
-//     user.followers.push(req.user._id);
-//     var followedUser = user._id;
-//     user.save(function(err){
-//         if(err){
-//             //Handle error
-//             //send error response
-//         }
-//         else
-//         {
-//             // Secondly, find the user account for the logged in user
-//             User.findOne({ username: req.user.username }, function(err, user) {
-
-//                 user.following.push(followedUser);
-//                 user.save(function(err){
-//                     if(err){
-//                         //Handle error
-//                         //send error response
-//                     }
-//                     else{
-//                         //send success response
-//                     }
-//                 });
-//             });
-//         }
-//     });
-// });
 
 module.exports = router;
