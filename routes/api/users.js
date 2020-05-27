@@ -113,8 +113,10 @@ router.put('/follow/:id', [auth, checkObjectId('id')], async (req, res) => {
         await me.save();
       }
 
-      res.status(200).json({ msg: "User Followed" });
+      res.status(200).json({ followers: user.followers });
+console.log(user);
       return res.json(user.following);
+      
     }
   } catch (err) {
     console.error(err.message);
@@ -147,7 +149,7 @@ router.put('/unfollow/:id', [auth, checkObjectId('id')], async (req, res) => {
 
       }
 
-      res.status(200).json({ msg: "Succesfully unfollowed user" });
+      res.status(200).json({ followers: user.followers });
       return res.json(user.following);
 
     } else {
