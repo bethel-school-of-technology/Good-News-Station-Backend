@@ -7,6 +7,7 @@ const config = require('config');
 const { check, validationResult } = require('express-validator');
 const auth = require('../../middleware/auth');
 const normalize = require('normalize-url');
+const mongoose = require('mongoose');
 
 const User = require('../../models/User');
 const checkObjectId = require('../../middleware/checkObjectId');
@@ -74,7 +75,7 @@ router.post(
       jwt.sign(
         payload,
         config.get('jwtSecret'),
-        { expiresIn: 360000 },
+        { expiresIn: '1 day' },
         (err, token) => {
           if (err) throw err;
           res.json({ token });
@@ -93,18 +94,30 @@ router.post(
 router.put('/follow/:id', [auth, checkObjectId('id')], async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    
+    const me = await User.findById(req.user.id);
 
-    // Check if the user has already been followd
-    if (user.following.filter((follow) => follow.user.toString() === req.user.id).length > 10) {
-      return res.status(400).json({ msg: 'User already followed' });
+    if (me.id === user.id) {
+      return res.status(400).json({ alreadyfollow: "You cannot follow yourself" })
     }
 
-    user.following.push({ user: req.user.id });
+    if (user.followers.some((follow) => follow.user.toString() === me.id)) {
+      return res.status(400).json({ msg: 'User already followed' });
+    } else {
+      user.followers.unshift({ user: me.id });
+      await user.save();
 
-    await user.save();
+      if (me.following.some((follow) => follow.user.toString() === user.id)) {
+        console.log("User already followed");
+      } else {
+        me.following.unshift({ user: user.id });
+        await me.save();
+      }
 
-    return res.json(user.following);
+      res.status(200).json({ followers: user.followers });
+console.log(user);
+      return res.json(user.following);
+      
+    }
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
@@ -117,23 +130,60 @@ router.put('/follow/:id', [auth, checkObjectId('id')], async (req, res) => {
 router.put('/unfollow/:id', [auth, checkObjectId('id')], async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
+    const me = await User.findById(req.user.id);
 
-    // Check if the user has not yet been followed
-    if (!user.following.some((follow) => follow.user.toString() === req.user.id)) {
-      return res.status(400).json({ msg: 'user has not yet been followed' });
+    console.log("user: ", user.id);
+    console.log("me: ", me.id);
+
+    if (user.followers.some((follow) => follow.user.toString() === me.id)) {
+      
+      user.followers.shift({ user: me.id });
+      await user.save();
+
+      if (me.following.some((follow) => follow.user.toString() === user.id)) {
+        me.following.shift({ user: user.id });
+        await me.save();
+      } else {
+        
+        console.log("Succesfully unfollowed user");
+
+      }
+
+      res.status(200).json({ followers: user.followers });
+      return res.json(user.following);
+
+    } else {
+      return res.status(400).json({ msg: 'Not Sucessful' });
+      
+
+    
     }
-
-    // remove the follow
-    user.following = user.following.filter(
-      ({ user }) => user.toString() !== req.user.id
-    );
-
-    await user.save();
-
-    return res.json(user.following);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
+  }
+});
+
+// @route    GET api/user/:user_id
+// @desc     Get user by user ID
+// @access   Public
+router.get('/:user_id', async ({ params: { user_id } }, res) => {
+  // check if the id is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(user_id))
+      return res.status(400).json({ msg: 'Invalid user ID' });
+
+  try {
+      const user = await User.findOne({
+          _id: user_id
+      }).populate('user', ['name', 'email', 'avatar', 'following', 'followers']);
+console.log('user_id', user_id);
+console.log('user', user);
+      if (!user) return res.status(400).json({ msg: 'User not found' });
+
+      return res.json(user);
+  } catch (err) {
+      console.error(err.message);
+      return res.status(400).json({ msg: 'User not found' });
   }
 });
 
