@@ -107,14 +107,14 @@ router.put('/follow/:id', [auth, checkObjectId('id')], async (req, res) => {
       await user.save();
 
       if (me.following.some((follow) => follow.user.toString() === user.id)) {
-        console.log("User already followed");
+        
       } else {
         me.following.unshift({ user: user.id });
         await me.save();
       }
 
       res.status(200).json({ followers: user.followers });
-console.log(user);
+
       return res.json(user.following);
       
     }
